@@ -1,7 +1,7 @@
 console.log('Lets write JavaScript');
-
 let currentSong = new Audio();
-let songs = ["O Maahi.mp3", "Ve Haaniya.mp3"]; // Add your song filenames here
+let songs = []; // Array to store songs
+let currFolder;
 let currentIndex = 0;
 
 function secondsToMinutesSeconds(seconds) {
@@ -18,25 +18,18 @@ function secondsToMinutesSeconds(seconds) {
     return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-function playMusic(track, pause = false) {
-    currentSong.src = `folder/${track}`; //songs stored in folder
-    if (!pause) {
-        currentSong.play();
-        play.src = "img/pause.svg";
-    }
-    document.querySelector(".songinfo").innerHTML = decodeURI(track);
-    document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
-    currentIndex = songs.indexOf(track);
-}
+// Function to set the songs
+function setSongs(songList, folder) {
+    songs = songList;
+    currFolder = folder;
 
-async function main() {
     // Show all the songs in the playlist
     let songUL = document.querySelector(".songList").getElementsByTagName("ul")[0];
     songUL.innerHTML = "";
     for (const song of songs) {
         songUL.innerHTML += `<li><img class="invert" width="34" src="img/music.svg" alt="">
                             <div class="info">
-                                <div> ${song.replaceAll("%20", " ")}</div>
+                                <div> ${song}</div>
                                 <div></div>
                             </div>
                             <div class="playnow">
@@ -47,19 +40,39 @@ async function main() {
 
     // Attach an event listener to each song
     Array.from(document.querySelector(".songList").getElementsByTagName("li")).forEach(e => {
-        e.addEventListener("click", element => {
+        e.addEventListener("click", () => {
             playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
         });
     });
+}
 
+const playMusic = (track, pause = false) => {
+    currentSong.src = `/${currFolder}/` + track;
+    if (!pause) {
+        currentSong.play();
+        play.src = "img/pause.svg";
+    }
+    document.querySelector(".songinfo").innerHTML = decodeURI(track);
+    document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
+    currentIndex = songs.indexOf(track);
+}
+
+async function main() {
+    // Set the list of all the songs
+    setSongs([
+        "O Maahi.mp3",
+        "Ve Haaniya.mp3"
+        // Add more songs here as needed
+    ], "folder"); // Specify the folder name here
     playMusic(songs[0], true);
 
-    // Attach an event listener to play, next and previous
+    // Attach event listener to play, next and previous
     play.addEventListener("click", () => {
         if (currentSong.paused) {
             currentSong.play();
             play.src = "img/pause.svg";
-        } else {
+        }
+        else {
             currentSong.pause();
             play.src = "img/play.svg";
         }
@@ -78,7 +91,17 @@ async function main() {
         currentSong.currentTime = ((currentSong.duration) * percent) / 100;
     });
 
-    // Add an event listener for previous
+    // Add an event listener for hamburger
+    document.querySelector(".hamburger").addEventListener("click", () => {
+        document.querySelector(".left").style.left = "0";
+    });
+
+    // Add an event listener for close button
+    document.querySelector(".close").addEventListener("click", () => {
+        document.querySelector(".left").style.left = "-120%";
+    });
+
+    // Add an event listener to previous
     previous.addEventListener("click", () => {
         currentSong.pause();
         console.log("Previous clicked");
@@ -87,7 +110,7 @@ async function main() {
         }
     });
 
-    // Add an event listener for next
+    // Add an event listener to next
     next.addEventListener("click", () => {
         currentSong.pause();
         console.log("Next clicked");
@@ -112,13 +135,13 @@ async function main() {
             e.target.src = e.target.src.replace("volume.svg", "mute.svg");
             currentSong.volume = 0;
             document.querySelector(".range").getElementsByTagName("input")[0].value = 0;
-        } else {
+        }
+        else {
             e.target.src = e.target.src.replace("mute.svg", "volume.svg");
-            currentSong.volume = 0.10;
+            currentSong.volume = .10;
             document.querySelector(".range").getElementsByTagName("input")[0].value = 10;
         }
     });
-
 }
 
 main();
